@@ -1,0 +1,36 @@
+// Function to hash the password using SHA-256
+function hashPassword(password) {
+    var hash = new TextEncoder("utf-8").encode(password);
+    return crypto.subtle.digest("SHA-256", hash).then(function (hash) {
+        return hex(hash);
+    });
+}
+
+// Function to convert the hash to a hexadecimal string
+function hex(buffer) {
+    var hexCodes = [];
+    var view = new DataView(buffer);
+    for (var i = 0; i < view.byteLength; i += 4) {
+        var value = view.getUint32(i);
+        var stringValue = value.toString(16);
+        var padding = '00000000';
+        var paddedValue = (padding + stringValue).slice(-padding.length);
+        hexCodes.push(paddedValue);
+    }
+    return hexCodes.join("");
+}
+
+// When the form is submitted
+document.getElementById("login-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    // Hash the password
+    var password = document.getElementById("password").value;
+    hashPassword(password).then(function(hashedPassword) {
+        // Set the value of the password field to the hashed password
+        document.getElementById("password").value = hashedPassword;
+
+        // Submit the form
+        this.submit();
+    });
+});
